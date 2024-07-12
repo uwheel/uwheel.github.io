@@ -1,0 +1,64 @@
+---
+import "@fontsource/inter";
+
+import { ViewTransitions } from "astro:transitions";
+
+import Footer from "../components/Footer.astro";
+import Topbar from "../components/Topbar.astro";
+import config from "../config";
+
+interface Props {
+  title?: string;
+  description?: string;
+  author?: string | undefined;
+  image?: string | null | undefined;
+}
+
+const { author, description, title, image } = Astro.props;
+
+const siteTitle = title ? `${title} | ${config.site.title}` : config.site.title;
+
+const siteUrl = new URL(Astro.url.pathname, Astro.site).href;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <!-- SEO -->
+    <title>{siteTitle}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description || config.site.description} />
+    {author && <meta name="author" content={author} />}
+
+    <!-- OG -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={siteUrl} />
+    {image && <meta property="og:image" content={Astro.site + image.slice(1)} />}
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={siteUrl} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+
+    <ViewTransitions />
+  </head>
+  <body class="text-gray-700 dark:text-gray-400 dark:bg-gray-950">
+    <Topbar />
+    <main class="px-4 pt-30 mx-auto max-w-3xl">
+      <slot />
+    </main>
+    <Footer />
+    <style is:global>
+      :not(.astro-code *) {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
+  </body>
+</html>
