@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://uwheel.github.io//sitemap-index.xml
