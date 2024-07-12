@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write # for committing to gh-pages branch
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
