@@ -1,6 +1,6 @@
-# nanoblog
+# µWheel Website
 
-Lightweight Astro blog template.
+Based on nanoblog, a Lightweight Astro blog template.
 
 ## Features
 
