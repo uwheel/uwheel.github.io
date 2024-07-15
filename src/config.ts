@@ -13,7 +13,7 @@ export default {
     title: "µWheel",
 
     /// Default site description
-    description: "small website showcasing µWheel",
+    description: "µWheel - Embeddable Aggregate Management For Streams and Queries",
   },
 
   layout: {
