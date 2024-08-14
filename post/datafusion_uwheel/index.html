@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.11.3"><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="sitemap" href="/sitemap-index.xml"><!-- SEO --><title>Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics | µWheel</title><meta name="title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta name="description" content="µWheel DataFusion Optimizer"><meta name="author" content="Max Meldrum"><!-- OG --><meta property="og:title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta property="og:description" content="µWheel DataFusion Optimizer"><meta property="og:url" content="https://uwheel.github.io/post/datafusion_uwheel/"><meta property="og:image" content="https://uwheel.github.io/media/posts/wheel_fire.jpeg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://uwheel.github.io/post/datafusion_uwheel/"><meta property="twitter:title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta property="twitter:description" content="µWheel DataFusion Optimizer"><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><link rel="stylesheet" href="/_astro/index.CpSEASYn.css">
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.11.3"><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="sitemap" href="/sitemap-index.xml"><!-- SEO --><title>Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics | µWheel</title><meta name="title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta name="description" content="Native µWheel-based DataFusion Optimizer"><meta name="author" content="Max Meldrum"><!-- OG --><meta property="og:title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta property="og:description" content="Native µWheel-based DataFusion Optimizer"><meta property="og:url" content="https://uwheel.github.io/post/datafusion_uwheel/"><meta property="og:image" content="https://uwheel.github.io/media/posts/wheel_fire.jpeg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://uwheel.github.io/post/datafusion_uwheel/"><meta property="twitter:title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta property="twitter:description" content="Native µWheel-based DataFusion Optimizer"><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><link rel="stylesheet" href="/_astro/index.CpSEASYn.css">
 <style>@keyframes astroFadeInOut{0%{opacity:1}to{opacity:0}}@keyframes astroFadeIn{0%{opacity:0}}@keyframes astroFadeOut{to{opacity:0}}@keyframes astroSlideFromRight{0%{transform:translate(100%)}}@keyframes astroSlideFromLeft{0%{transform:translate(-100%)}}@keyframes astroSlideToRight{to{transform:translate(100%)}}@keyframes astroSlideToLeft{to{transform:translate(-100%)}}@media (prefers-reduced-motion){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}[data-astro-transition-scope]{animation:none!important}}
 @font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-cyrillic-ext-400-normal.tyfMZHQw.woff2) format("woff2"),url(/_astro/inter-cyrillic-ext-400-normal.CzG7Kr3z.woff) format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-cyrillic-400-normal.Df6ckaLK.woff2) format("woff2"),url(/_astro/inter-cyrillic-400-normal.JrS_4yms.woff) format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-greek-ext-400-normal.CIdlr5YK.woff2) format("woff2"),url(/_astro/inter-greek-ext-400-normal._Rr29XE2.woff) format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-greek-400-normal.DQXyrmoy.woff2) format("woff2"),url(/_astro/inter-greek-400-normal.DvIPHDQ7.woff) format("woff");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-vietnamese-400-normal.Cnt0N5Vm.woff2) format("woff2"),url(/_astro/inter-vietnamese-400-normal.DIOGfGLL.woff) format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-latin-ext-400-normal.D3W-OpO-.woff2) format("woff2"),url(/_astro/inter-latin-ext-400-normal.8tIzm-yw.woff) format("woff");unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-latin-400-normal.BT1H-PT_.woff2) format("woff2"),url(/_astro/inter-latin-400-normal.Cdi8t5Mu.woff) format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}.astro-route-announcer{position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px}:not(.astro-code *){font-family:Inter,sans-serif}
 :target{scroll-margin-top:80px!important}article a{color:#075985!important}.dark article a{color:#38bdf8!important}article table{table-layout:auto;border:1px solid #d1d5db;border-radius:4px}article table{border-bottom:1px solid #fafafa}.dark article table{border:1px solid #374151}code:before,code:after{display:none}.astro-code{font-size:16px}p code{border-radius:4px;padding:2px 4px;white-space:normal!important}.dark p code{color:#d0d0d0!important;background:#07598566!important}html:not(.dark) p code{color:#000!important;background:#7fc3e766!important}.dark article blockquote{border-left-color:#064566!important}html:not(.dark) article blockquote{border-left-width:.25rem;border-left-style:solid;border-left-color:#63c8ff!important}html.dark .astro-code,html.dark .astro-code span{color:var(--shiki-dark)!important;background-color:var(--shiki-dark-bg)!important;font-style:var(--shiki-dark-font-style)!important;font-weight:var(--shiki-dark-font-weight)!important;text-decoration:var(--shiki-dark-text-decoration)!important}
@@ -147,19 +147,19 @@
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-5"] { view-transition-name: astro-x7amp3kc-5; }@layer astro { ::view-transition-old(astro-x7amp3kc-5) { 
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-5"] { view-transition-name: datafusion; }@layer astro { ::view-transition-old(datafusion) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }::view-transition-new(astro-x7amp3kc-5) { 
+	animation-name: astroFadeOut; }::view-transition-new(datafusion) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(astro-x7amp3kc-5) { 
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(datafusion) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(astro-x7amp3kc-5) { 
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(datafusion) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
@@ -183,19 +183,19 @@
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-6"] { view-transition-name: datafusion; }@layer astro { ::view-transition-old(datafusion) { 
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-6"] { view-transition-name: olap; }@layer astro { ::view-transition-old(olap) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }::view-transition-new(datafusion) { 
+	animation-name: astroFadeOut; }::view-transition-new(olap) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(datafusion) { 
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(olap) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(datafusion) { 
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(olap) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
@@ -219,19 +219,19 @@
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-7"] { view-transition-name: olap; }@layer astro { ::view-transition-old(olap) { 
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-7"] { view-transition-name: indexing; }@layer astro { ::view-transition-old(indexing) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }::view-transition-new(olap) { 
+	animation-name: astroFadeOut; }::view-transition-new(indexing) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(olap) { 
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(indexing) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(olap) { 
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(indexing) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
@@ -255,19 +255,19 @@
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-8"] { view-transition-name: indexing; }@layer astro { ::view-transition-old(indexing) { 
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-8"] { view-transition-name: rust; }@layer astro { ::view-transition-old(rust) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }::view-transition-new(indexing) { 
+	animation-name: astroFadeOut; }::view-transition-new(rust) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(indexing) { 
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(rust) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(indexing) { 
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(rust) { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
@@ -288,78 +288,6 @@
 	animation-fill-mode: both;
 	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-8"],
 			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-8"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-9"] { view-transition-name: rust; }@layer astro { ::view-transition-old(rust) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }::view-transition-new(rust) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(rust) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(rust) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-9"],
-			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-9"],
-			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-9"],
-			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-9"],
-			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-10"] { view-transition-name: uwheel; }@layer astro { ::view-transition-old(uwheel) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }::view-transition-new(uwheel) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(uwheel) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(uwheel) { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-10"],
-			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-10"],
-			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-10"],
-			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
-	animation-duration: 180ms;
-	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
-	animation-fill-mode: both;
-	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-10"],
-			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
 	animation-duration: 180ms;
 	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
 	animation-fill-mode: both;
@@ -436,12 +364,11 @@
 by <i>Max Meldrum</i> </div>
 -
  <div> August 14, 2024 </div> 
-- <div>7 min. read</div>  </div> <ul class="text-sm text-sky-800 dark:text-sky-300 flex flex-wrap items-center gap-3"> <li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/datafusion" data-astro-transition-scope="astro-x7amp3kc-6">
-#datafusion </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/olap" data-astro-transition-scope="astro-x7amp3kc-7">
-#olap </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/indexing" data-astro-transition-scope="astro-x7amp3kc-8">
-#indexing </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/rust" data-astro-transition-scope="astro-x7amp3kc-9">
-#rust </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/uwheel" data-astro-transition-scope="astro-x7amp3kc-10">
-#uwheel </a> </li> </ul> <img class="mt-5 rounded-xl w-full object-cover aspect-2" src="/media/posts/wheel_fire.jpeg" alt="Blog post thumbnail"> </div>  <article class="my-10 w-full !max-w-full prose dark:prose-invert text-lg text-justify dark:prose-gray"> <p>This is a follow up post to the previous <a href="https://uwheel.rs/post/datafusion/">one</a>
+- <div>7 min. read</div>  </div> <ul class="text-sm text-sky-800 dark:text-sky-300 flex flex-wrap items-center gap-3"> <li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/datafusion" data-astro-transition-scope="astro-x7amp3kc-5">
+#datafusion </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/olap" data-astro-transition-scope="astro-x7amp3kc-6">
+#olap </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/indexing" data-astro-transition-scope="astro-x7amp3kc-7">
+#indexing </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/rust" data-astro-transition-scope="astro-x7amp3kc-8">
+#rust </a> </li> </ul> <img class="mt-5 rounded-xl w-full object-cover aspect-2" src="/media/posts/wheel_fire.jpeg" alt="Blog post thumbnail"> </div>  <article class="my-10 w-full !max-w-full prose dark:prose-invert text-lg text-justify dark:prose-gray"> <p>This is a follow up post to the previous <a href="https://uwheel.rs/post/datafusion/">one</a>
 which showcased the potential of integrating µWheel into DataFusion.</p>
 <p>In this post, we introduce an <strong>actual</strong> integration of the two projects into
 a Rust crate called <a href="https://github.com/uwheel/datafusion-uwheel">datafusion-uwheel</a>,
@@ -753,8 +680,7 @@ and development <a href="https://github.com/uwheel/datafusion-uwheel">here</a>.<
 #datafusion </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/olap" data-astro-transition-scope="astro-x7amp3kc-2">
 #olap </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/indexing" data-astro-transition-scope="astro-x7amp3kc-3">
 #indexing </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/rust" data-astro-transition-scope="astro-x7amp3kc-4">
-#rust </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/uwheel" data-astro-transition-scope="astro-x7amp3kc-5">
-#uwheel </a> </li> </ul> </div>  </main> <footer class="flex flex-col gap-5 py-10 mx-auto max-w-3xl w-full"> <!-- TODO: move into a fixed FAB button, outside of footer --> <div class="text-right"> <button onclick="scrollToTop()">Back to top</button> </div> <div class="text-center">
+#rust </a> </li> </ul> </div>  </main> <footer class="flex flex-col gap-5 py-10 mx-auto max-w-3xl w-full"> <!-- TODO: move into a fixed FAB button, outside of footer --> <div class="text-right"> <button onclick="scrollToTop()">Back to top</button> </div> <div class="text-center">
 &copy; 2024 µWheel 
 - powered by <a class="text-sky-700 dark:text-sky-300 italic transition-all hover:brightness-80" href="https://github.com/marvin-j97/nanoblog" target="_blank">
 nanoblog
