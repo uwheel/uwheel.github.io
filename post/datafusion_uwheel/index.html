@@ -1,0 +1,769 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><meta name="generator" content="Astro v4.11.3"><link rel="icon" type="image/x-icon" href="/favicon.ico"><link rel="sitemap" href="/sitemap-index.xml"><!-- SEO --><title>Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics | µWheel</title><meta name="title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta name="description" content="µWheel DataFusion Optimizer"><meta name="author" content="Max Meldrum"><!-- OG --><meta property="og:title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta property="og:description" content="µWheel DataFusion Optimizer"><meta property="og:url" content="https://uwheel.github.io/post/datafusion_uwheel/"><meta property="og:image" content="https://uwheel.github.io/media/posts/wheel_fire.jpeg"><!-- Twitter --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://uwheel.github.io/post/datafusion_uwheel/"><meta property="twitter:title" content="Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics"><meta property="twitter:description" content="µWheel DataFusion Optimizer"><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><link rel="stylesheet" href="/_astro/index.CpSEASYn.css">
+<style>@keyframes astroFadeInOut{0%{opacity:1}to{opacity:0}}@keyframes astroFadeIn{0%{opacity:0}}@keyframes astroFadeOut{to{opacity:0}}@keyframes astroSlideFromRight{0%{transform:translate(100%)}}@keyframes astroSlideFromLeft{0%{transform:translate(-100%)}}@keyframes astroSlideToRight{to{transform:translate(100%)}}@keyframes astroSlideToLeft{to{transform:translate(-100%)}}@media (prefers-reduced-motion){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}[data-astro-transition-scope]{animation:none!important}}
+@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-cyrillic-ext-400-normal.tyfMZHQw.woff2) format("woff2"),url(/_astro/inter-cyrillic-ext-400-normal.CzG7Kr3z.woff) format("woff");unicode-range:U+0460-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-cyrillic-400-normal.Df6ckaLK.woff2) format("woff2"),url(/_astro/inter-cyrillic-400-normal.JrS_4yms.woff) format("woff");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-greek-ext-400-normal.CIdlr5YK.woff2) format("woff2"),url(/_astro/inter-greek-ext-400-normal._Rr29XE2.woff) format("woff");unicode-range:U+1F00-1FFF}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-greek-400-normal.DQXyrmoy.woff2) format("woff2"),url(/_astro/inter-greek-400-normal.DvIPHDQ7.woff) format("woff");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-vietnamese-400-normal.Cnt0N5Vm.woff2) format("woff2"),url(/_astro/inter-vietnamese-400-normal.DIOGfGLL.woff) format("woff");unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+1EA0-1EF9,U+20AB}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-latin-ext-400-normal.D3W-OpO-.woff2) format("woff2"),url(/_astro/inter-latin-ext-400-normal.8tIzm-yw.woff) format("woff");unicode-range:U+0100-02AF,U+0304,U+0308,U+0329,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}@font-face{font-family:Inter;font-style:normal;font-display:swap;font-weight:400;src:url(/_astro/inter-latin-400-normal.BT1H-PT_.woff2) format("woff2"),url(/_astro/inter-latin-400-normal.Cdi8t5Mu.woff) format("woff");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+2074,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}.astro-route-announcer{position:absolute;left:0;top:0;clip:rect(0 0 0 0);clip-path:inset(50%);overflow:hidden;white-space:nowrap;width:1px;height:1px}:not(.astro-code *){font-family:Inter,sans-serif}
+:target{scroll-margin-top:80px!important}article a{color:#075985!important}.dark article a{color:#38bdf8!important}article table{table-layout:auto;border:1px solid #d1d5db;border-radius:4px}article table{border-bottom:1px solid #fafafa}.dark article table{border:1px solid #374151}code:before,code:after{display:none}.astro-code{font-size:16px}p code{border-radius:4px;padding:2px 4px;white-space:normal!important}.dark p code{color:#d0d0d0!important;background:#07598566!important}html:not(.dark) p code{color:#000!important;background:#7fc3e766!important}.dark article blockquote{border-left-color:#064566!important}html:not(.dark) article blockquote{border-left-width:.25rem;border-left-style:solid;border-left-color:#63c8ff!important}html.dark .astro-code,html.dark .astro-code span{color:var(--shiki-dark)!important;background-color:var(--shiki-dark-bg)!important;font-style:var(--shiki-dark-font-style)!important;font-weight:var(--shiki-dark-font-weight)!important;text-decoration:var(--shiki-dark-text-decoration)!important}
+</style><script type="module" src="/_astro/hoisted.y0zVRpc3.js"></script>
+<script type="module" src="/_astro/page.D0Zdqonr.js"></script><style>[data-astro-transition-scope="astro-x7amp3kc-1"] { view-transition-name: astro-x7amp3kc-1; }@layer astro { ::view-transition-old(astro-x7amp3kc-1) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(astro-x7amp3kc-1) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(astro-x7amp3kc-1) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(astro-x7amp3kc-1) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-1"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-1"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-1"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-1"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-2"] { view-transition-name: astro-x7amp3kc-2; }@layer astro { ::view-transition-old(astro-x7amp3kc-2) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(astro-x7amp3kc-2) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(astro-x7amp3kc-2) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(astro-x7amp3kc-2) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-2"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-2"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-2"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-2"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-3"] { view-transition-name: astro-x7amp3kc-3; }@layer astro { ::view-transition-old(astro-x7amp3kc-3) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(astro-x7amp3kc-3) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(astro-x7amp3kc-3) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(astro-x7amp3kc-3) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-3"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-3"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-3"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-3"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-3"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-4"] { view-transition-name: astro-x7amp3kc-4; }@layer astro { ::view-transition-old(astro-x7amp3kc-4) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(astro-x7amp3kc-4) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(astro-x7amp3kc-4) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(astro-x7amp3kc-4) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-4"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-4"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-4"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-4"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-4"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-5"] { view-transition-name: astro-x7amp3kc-5; }@layer astro { ::view-transition-old(astro-x7amp3kc-5) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(astro-x7amp3kc-5) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(astro-x7amp3kc-5) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(astro-x7amp3kc-5) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-5"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-5"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-5"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-5"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-5"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-6"] { view-transition-name: datafusion; }@layer astro { ::view-transition-old(datafusion) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(datafusion) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(datafusion) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(datafusion) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-6"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-6"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-6"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-6"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-6"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-6"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-6"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-6"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-7"] { view-transition-name: olap; }@layer astro { ::view-transition-old(olap) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(olap) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(olap) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(olap) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-7"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-7"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-7"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-7"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-7"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-7"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-7"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-7"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-8"] { view-transition-name: indexing; }@layer astro { ::view-transition-old(indexing) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(indexing) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(indexing) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(indexing) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-8"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-8"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-8"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-8"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-8"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-8"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-8"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-8"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-9"] { view-transition-name: rust; }@layer astro { ::view-transition-old(rust) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(rust) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(rust) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(rust) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-9"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-9"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-9"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-9"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-9"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-x7amp3kc-10"] { view-transition-name: uwheel; }@layer astro { ::view-transition-old(uwheel) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }::view-transition-new(uwheel) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(uwheel) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(uwheel) { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-10"],
+			[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-10"],
+			[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-x7amp3kc-10"],
+			[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-x7amp3kc-10"],
+			[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-x7amp3kc-10"] { 
+	animation-duration: 180ms;
+	animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
+	animation-fill-mode: both;
+	animation-name: astroFadeIn; }</style></head> <body class="text-gray-700 dark:text-gray-400 dark:bg-gray-950"> <header class="backdrop-blur w-full px-8 py-5 fixed z-10 border-b dark:border-gray-900 bg-white/80 dark:bg-gray-950/75"> <div class="flex items-center gap-5 mx-auto w-full max-w-3xl"> <a class="text-black dark:text-white font-medium transition-colors hover:brightness-80" href="/" class="text-lg"> <!-- SETUP: If you have a logo, replace this component with it --><span> µWheel </span> </a> <div class="flex-grow"></div> <div class="flex items-center gap-4"> <a href="/posts" class="text-gray-800 dark:text-gray-400 transition-colors hover:brightness-80"> Posts </a><a href="/tags" class="text-gray-800 dark:text-gray-400 transition-colors hover:brightness-80"> Tags </a> </div> <div class="flex items-center gap-3"> <a href="/search" aria-label="Search content" class="transition-all hover:brightness-80 hover:scale-105"> <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg> </a> <button aria-label="Switch theme" class="theme-switch transition-all hover:brightness-80 hover:scale-105"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path></svg> </button> <script>
+  const iconMoon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>`;
+  const iconSun = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>`;
+
+  function theme() {
+    const local = localStorage.getItem("theme");
+    if (local) {
+      return local;
+    }
+    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      return "dark";
+    }
+    return "light";
+  }
+
+  function registerStuff(document) {
+    const root = document.documentElement;
+    const themeSwitch = document.querySelector(".theme-switch");
+
+    if (theme() === "light") {
+      root.classList.remove("dark");
+      themeSwitch.innerHTML = iconMoon;
+    } else {
+      root.classList.add("dark");
+      themeSwitch.innerHTML = iconSun;
+    }
+
+    themeSwitch.addEventListener("click", () => {
+      const isDark = root.classList.contains("dark");
+      localStorage.setItem("theme", isDark ? "light" : "dark");
+      console.log(isDark);
+
+      if (isDark) {
+        root.classList.remove("dark");
+        themeSwitch.innerHTML = iconMoon;
+      } else {
+        root.classList.add("dark");
+        themeSwitch.innerHTML = iconSun;
+      }
+    });
+  }
+
+  registerStuff(document);
+
+  document.addEventListener("astro:after-swap", (ev) => {
+    registerStuff(document);
+  });
+</script> <a target="_blank" href="/rss.xml" aria-label="Get RSS feed" class="transition-all hover:brightness-80 hover:scale-105"> <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-rss" width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path> <path d="M5 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path> <path d="M4 4a16 16 0 0 1 16 16"></path> <path d="M4 11a9 9 0 0 1 9 9"></path>  </svg> </a> </div> </div> </header> <main class="px-4 pt-30 mx-auto max-w-3xl">   <div class="reading-progress z-10 fixed left-0 top-0 h-1 dark:bg-sky-500 bg-sky-700 opacity-75"></div> <script>
+  /**
+   * Gets the vertical scroll percent (0.0 - 1.0)
+   */
+  function getScrollPercent() {
+    const doc = document.documentElement;
+    const body = document.body;
+
+    return (
+      (doc.scrollTop || body.scrollTop) /
+      ((doc.scrollHeight || body.scrollHeight) - doc.clientHeight)
+    );
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    document.addEventListener("scroll", () => {
+      const el = document.querySelector(".reading-progress");
+      if (el) {
+        el.style.width = `${getScrollPercent() * 100}%`;
+      }
+    });
+  });
+</script> <div class="flex flex-col gap-4"> <h1 class="text-sky-800 dark:text-sky-400 text-4xl md:text-5xl font-bold"> Introducing datafusion-uwheel, A Native DataFusion Optimizer for Time-based Analytics </h1> <div class="flex items-center gap-2">  <div>
+by <i>Max Meldrum</i> </div>
+-
+ <div> August 14, 2024 </div> 
+- <div>7 min. read</div>  </div> <ul class="text-sm text-sky-800 dark:text-sky-300 flex flex-wrap items-center gap-3"> <li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/datafusion" data-astro-transition-scope="astro-x7amp3kc-6">
+#datafusion </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/olap" data-astro-transition-scope="astro-x7amp3kc-7">
+#olap </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/indexing" data-astro-transition-scope="astro-x7amp3kc-8">
+#indexing </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/rust" data-astro-transition-scope="astro-x7amp3kc-9">
+#rust </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/uwheel" data-astro-transition-scope="astro-x7amp3kc-10">
+#uwheel </a> </li> </ul> <img class="mt-5 rounded-xl w-full object-cover aspect-2" src="/media/posts/wheel_fire.jpeg" alt="Blog post thumbnail"> </div>  <article class="my-10 w-full !max-w-full prose dark:prose-invert text-lg text-justify dark:prose-gray"> <p>This is a follow up post to the previous <a href="https://uwheel.rs/post/datafusion/">one</a>
+which showcased the potential of integrating µWheel into DataFusion.</p>
+<p>In this post, we introduce an <strong>actual</strong> integration of the two projects into
+a Rust crate called <a href="https://github.com/uwheel/datafusion-uwheel">datafusion-uwheel</a>,
+a native DataFusion optimizer which significantly improves query performance
+for time-based analytics.</p>
+<p>This is a joint effort with the DataFusion community. Special thanks to
+Andrew Lamb for his valuable insights towards this integration.</p>
+<p>Post Overview:</p>
+<ul>
+<li><a href="#query-capabilities">Query Capabilities</a></li>
+<li><a href="#how-it-works">How it Works</a></li>
+<li><a href="#creating-an-optimizer">Creating an Optimizer</a></li>
+<li><a href="#creating-an-index">Creating an Index</a></li>
+<li><a href="#preliminary-results">Preliminary Results</a></li>
+<li><a href="#next-steps">Next steps</a></li>
+</ul>
+<h3 id="query-capabilities">Query Capabilities</h3>
+<p>Before diving into details about the optimizer, let’s first discuss what kind
+of queries can be optimized through <code>datafusion-uwheel</code>.</p>
+<p>There are two types of queries that can be enhanced: Temporal
+<strong>Aggregation</strong> and <strong>Pruning</strong>.</p>
+<h4 id="aggregation">Aggregation</h4>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#0184BC;--shiki-dark:#EB6F92;font-style:inherit;--shiki-dark-font-style:italic"> SUM</span><span style="color:#383A42;--shiki-dark:#E0DEF4">(other_col) </span><span style="color:#A626A4;--shiki-dark:#3E8FB0">FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> my_table</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> time_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '2022-01-01T00:00:00Z'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> time_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '2022-01-01T13:00:00Z'</span></span>
+<span class="line"></span></code></pre>
+<p>The following query can be optimized through a sum-based µWheel.
+Resulting in significant performance improvements over traditional full-scan query execution
+thanks to pre-computed aggregates across time and µWheel’s query optimizer.</p>
+<h4 id="pruning">Pruning</h4>
+<p>µWheel indices can also be used to prune temporal ranges to avoid query execution
+if its guaranteed there won’t be any matches.</p>
+<p><strong>Count</strong> Pruning: maintain table count across time to enable count-based pruning.</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> *</span><span style="color:#A626A4;--shiki-dark:#3E8FB0"> FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> my_table</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">where</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> time_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '2022-01-01T00:00:00Z'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> time_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '2022-01-01T13:00:00Z'</span></span>
+<span class="line"></span></code></pre>
+<p><strong>MinMax</strong> Pruning: maintain min/max values for a column across
+time.</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> *</span><span style="color:#A626A4;--shiki-dark:#3E8FB0"> FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> my_table</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> time_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '2022-01-01T00:00:00Z'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> time_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '2022-01-01T13:00:00Z'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> other_col </span><span style="color:#383A42;--shiki-dark:#3E8FB0">></span><span style="color:#986801;--shiki-dark:#EA9A97"> 100</span></span>
+<span class="line"></span></code></pre>
+<h3 id="how-it-works">How it works</h3>
+<p>The optimizer leverages µWheel indices to rewrite DataFusion plans at
+the logical level, either providing plan-time aggregates
+or skipping execution based on pruning.</p>
+<p>The following diagram shows at a high-level how the optimizer works.</p>
+<p><img src="/media/posts/datafusion-uwheel-overview.png" alt="Overview"></p>
+<p>Whereas this code snippet illustrates the rewrite process at the code level:</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">fn</span><span style="color:#4078F2;--shiki-dark:#EA9A97"> rewrite</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">  &#x26;</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">self</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">  plan</span><span style="color:#383A42;--shiki-dark:#3E8FB0">:</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> LogicalPlan</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">  _config</span><span style="color:#383A42;--shiki-dark:#3E8FB0">:</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> &#x26;</span><span style="color:#A626A4;--shiki-dark:#3E8FB0">dyn</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> OptimizerConfig</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">)</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> -></span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> Result</span><span style="color:#383A42;--shiki-dark:#908CAA">&#x3C;</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">Transformed</span><span style="color:#383A42;--shiki-dark:#908CAA">&#x3C;</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">LogicalPlan</span><span style="color:#383A42;--shiki-dark:#908CAA">>></span><span style="color:#383A42;--shiki-dark:#908CAA"> {</span></span>
+<span class="line"><span style="color:#A0A1A7;--shiki-dark:#908CAA;font-style:italic;--shiki-dark-font-style:italic">    //</span><span style="color:#A0A1A7;--shiki-dark:#6E6A86;font-style:italic;--shiki-dark-font-style:italic"> Attemps to rewrite a logical plan to a uwheel-based plan that either provides</span></span>
+<span class="line"><span style="color:#A0A1A7;--shiki-dark:#908CAA;font-style:italic;--shiki-dark-font-style:italic">    //</span><span style="color:#A0A1A7;--shiki-dark:#6E6A86;font-style:italic;--shiki-dark-font-style:italic"> plan-time aggregates or skips execution based on min/max pruning.</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">    if</span><span style="color:#A626A4;--shiki-dark:#3E8FB0"> let</span><span style="color:#C18401;--shiki-dark:#9CCFD8"> Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">rewritten</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> =</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> self</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">try_rewrite</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x26;</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">plan</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span><span style="color:#383A42;--shiki-dark:#908CAA"> {</span></span>
+<span class="line"><span style="color:#C18401;--shiki-dark:#9CCFD8">        Ok</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">Transformed</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">yes</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">rewritten</span><span style="color:#383A42;--shiki-dark:#908CAA">))</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">    }</span><span style="color:#A626A4;--shiki-dark:#3E8FB0"> else</span><span style="color:#383A42;--shiki-dark:#908CAA"> {</span></span>
+<span class="line"><span style="color:#C18401;--shiki-dark:#9CCFD8">        Ok</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">Transformed</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">no</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">plan</span><span style="color:#383A42;--shiki-dark:#908CAA">))</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">    }</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">}</span></span>
+<span class="line"></span></code></pre>
+<p>Internally, the rewriter looks for temporal patterns and aggregation functions
+that match the stored wheel indices. If there is a match then the target wheel is
+queried and the aggregate result gets stored within a
+<a href="https://docs.rs/datafusion/latest/datafusion/datasource/memory/struct.MemTable.html">MemTable</a>
+and is returned as a <code>LogicalPlan::TableScan</code>.</p>
+<p>For instance, assuming a single-value aggregate result,
+the following function illustrates the transformation
+into a new optimized logical plan.</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line"><span style="color:#A0A1A7;--shiki-dark:#908CAA;font-style:italic;--shiki-dark-font-style:italic">//</span><span style="color:#A0A1A7;--shiki-dark:#6E6A86;font-style:italic;--shiki-dark-font-style:italic"> Converts a uwheel aggregate result to a TableScan with a MemTable as source</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">fn</span><span style="color:#4078F2;--shiki-dark:#EA9A97"> agg_to_table_scan</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">result</span><span style="color:#383A42;--shiki-dark:#3E8FB0">:</span><span style="color:#C18401;--shiki-dark:#9CCFD8"> f64</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> schema</span><span style="color:#383A42;--shiki-dark:#3E8FB0">:</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> SchemaRef</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> -></span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> Result</span><span style="color:#383A42;--shiki-dark:#908CAA">&#x3C;</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">LogicalPlan</span><span style="color:#383A42;--shiki-dark:#908CAA">></span><span style="color:#383A42;--shiki-dark:#908CAA"> {</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">  let</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> data</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> =</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> Float64Array</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">from</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#4078F2;--shiki-dark:#EA9A97">vec!</span><span style="color:#383A42;--shiki-dark:#908CAA">[</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">result</span><span style="color:#383A42;--shiki-dark:#908CAA">]);</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">  let</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> record_batch</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> =</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> RecordBatch</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">try_new</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">schema</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">clone</span><span style="color:#383A42;--shiki-dark:#908CAA">(),</span><span style="color:#4078F2;--shiki-dark:#EA9A97"> vec!</span><span style="color:#383A42;--shiki-dark:#908CAA">[</span><span style="color:#383A42;--shiki-dark:#9CCFD8">Arc</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">new</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">data</span><span style="color:#383A42;--shiki-dark:#908CAA">)])</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">;</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">  let</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> df_schema</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> =</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> Arc</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">new</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#383A42;--shiki-dark:#9CCFD8">DFSchema</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">try_from</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">schema</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">clone</span><span style="color:#383A42;--shiki-dark:#908CAA">())</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">);</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">  let</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> mem_table</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> =</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> MemTable</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">try_new</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">schema</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span><span style="color:#4078F2;--shiki-dark:#EA9A97"> vec!</span><span style="color:#383A42;--shiki-dark:#908CAA">[</span><span style="color:#4078F2;--shiki-dark:#EA9A97">vec!</span><span style="color:#383A42;--shiki-dark:#908CAA">[</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">record_batch</span><span style="color:#383A42;--shiki-dark:#908CAA">]])</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">;</span></span>
+<span class="line"><span style="color:#4078F2;--shiki-dark:#EA9A97">  mem_table_as_table_scan</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">mem_table</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> df_schema</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">}</span></span>
+<span class="line"></span></code></pre>
+<h3 id="creating-an-optimizer">Creating an Optimizer</h3>
+<p>A <code>UWheelOptimizer</code> is created through a <code>Builder</code> struct
+that takes the following parameters:</p>
+<ul>
+<li>DataFusion TableProvider (required)</li>
+<li>Time column (required)</li>
+<li>Table name (required)</li>
+<li>Time Range (optional)</li>
+<li>MinMax columns (optional)</li>
+</ul>
+<p>The following code shows an example using the NYC Taxi dataset.</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line"><span style="color:#A0A1A7;--shiki-dark:#908CAA;font-style:italic;--shiki-dark-font-style:italic">//</span><span style="color:#A0A1A7;--shiki-dark:#6E6A86;font-style:italic;--shiki-dark-font-style:italic"> Builds a UWheelOptimizer using a Parquet TableProvider</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">let</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic"> optimizer</span><span style="color:#383A42;--shiki-dark:#3E8FB0">:</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> Arc</span><span style="color:#383A42;--shiki-dark:#908CAA">&#x3C;</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">UWheelOptimizer</span><span style="color:#383A42;--shiki-dark:#908CAA">></span><span style="color:#383A42;--shiki-dark:#3E8FB0"> =</span><span style="color:#0184BC;--shiki-dark:#9CCFD8"> Arc</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">new</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">  Builder</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">new</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"tpep_dropoff_datetime"</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_name</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"yellow_tripdata"</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_min_max_wheels</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#4078F2;--shiki-dark:#EA9A97">vec!</span><span style="color:#383A42;--shiki-dark:#908CAA">[</span><span style="color:#50A14F;--shiki-dark:#F6C177">"fare_amount"</span><span style="color:#383A42;--shiki-dark:#908CAA">])</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_time_range</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          ScalarValue</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">Utf8</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#C18401;--shiki-dark:#9CCFD8">Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"2022-01-01T00:00:00Z"</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">to_string</span><span style="color:#383A42;--shiki-dark:#908CAA">())),</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          ScalarValue</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">Utf8</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#C18401;--shiki-dark:#9CCFD8">Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"2022-02-01T00:00:00Z"</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">to_string</span><span style="color:#383A42;--shiki-dark:#908CAA">())),</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">      )</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">build_with_provider</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">provider</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#A626A4;--shiki-dark:#3E8FB0">await</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">);</span></span>
+<span class="line"></span></code></pre>
+<p>Now this optimizer can be configured as a custom <a href="https://docs.rs/datafusion/latest/datafusion/optimizer/trait.OptimizerRule.html">OptimizerRule</a>
+in DataFusion.</p>
+<h3 id="creating-an-index">Creating an Index</h3>
+<p>We now show how custom µWheel indices can be built using the <code>IndexBuilder</code> struct.
+It requires two mandatory parameters, a column name and an aggregate type.
+It is also possible to configure which time range the index should cover,
+and whether the index should include any extra predicates.</p>
+<p>Assuming we would want to index the sum of fare amounts across time for the
+NYC Taxi dataset, to support queries like this one:</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#0184BC;--shiki-dark:#EB6F92;font-style:inherit;--shiki-dark-font-style:italic"> SUM</span><span style="color:#383A42;--shiki-dark:#E0DEF4">(fare_amount) </span><span style="color:#A626A4;--shiki-dark:#3E8FB0">FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> yellow_tripdata</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"></span></code></pre>
+<p>We would then create the index through the API:</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line"><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">optimizer</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">  .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">build_index</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">      IndexBuilder</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_col_and_aggregate</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#50A14F;--shiki-dark:#F6C177">          "fare_amount"</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          AggregateType</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">Sum</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">      )</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_time_range</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          ScalarValue</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">Utf8</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#C18401;--shiki-dark:#9CCFD8">Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"2022-01-01T00:00:00Z"</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">to_string</span><span style="color:#383A42;--shiki-dark:#908CAA">())),</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          ScalarValue</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">Utf8</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#C18401;--shiki-dark:#9CCFD8">Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"2022-02-01T00:00:00Z"</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">to_string</span><span style="color:#383A42;--shiki-dark:#908CAA">())),</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">      )</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">  )</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">  .</span><span style="color:#A626A4;--shiki-dark:#3E8FB0">await</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">;</span></span>
+<span class="line"></span></code></pre>
+<p>It is also possible to build indices for custom DataFusion expressions
+using the <code>with_filter</code> method. Let’s say that we also want to include a
+predicate on passenger count where we are only interested in trips with 3 passengers.</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#0184BC;--shiki-dark:#EB6F92;font-style:inherit;--shiki-dark-font-style:italic"> SUM</span><span style="color:#383A42;--shiki-dark:#E0DEF4">(fare_amount) </span><span style="color:#A626A4;--shiki-dark:#3E8FB0">FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> yellow_tripdata</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> passenger_count </span><span style="color:#383A42;--shiki-dark:#3E8FB0">=</span><span style="color:#986801;--shiki-dark:#EA9A97"> 3</span></span>
+<span class="line"></span></code></pre>
+<p>This index can be built through the following code.</p>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="rust"><code><span class="line"><span style="color:#E45649;--shiki-dark:#E0DEF4;font-style:inherit;--shiki-dark-font-style:italic">optimizer</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">  .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">build_index</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">      IndexBuilder</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_col_and_aggregate</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#50A14F;--shiki-dark:#F6C177">          "fare_amount"</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          AggregateType</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#0184BC;--shiki-dark:#9CCFD8">Sum</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">      )</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_filter</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#4078F2;--shiki-dark:#EA9A97">col</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"passenger_count"</span><span style="color:#383A42;--shiki-dark:#908CAA">)</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">eq</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#4078F2;--shiki-dark:#EA9A97">lit</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#986801;--shiki-dark:#EA9A97">3</span><span style="color:#986801;--shiki-dark:#908CAA">.</span><span style="color:#986801;--shiki-dark:#EA9A97">0</span><span style="color:#383A42;--shiki-dark:#908CAA">)))</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">      .</span><span style="color:#4078F2;--shiki-dark:#EA9A97">with_time_range</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          ScalarValue</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">Utf8</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#C18401;--shiki-dark:#9CCFD8">Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"2022-01-01T00:00:00Z"</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">to_string</span><span style="color:#383A42;--shiki-dark:#908CAA">())),</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#9CCFD8">          ScalarValue</span><span style="color:#383A42;--shiki-dark:#3E8FB0">::</span><span style="color:#4078F2;--shiki-dark:#EA9A97">Utf8</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#C18401;--shiki-dark:#9CCFD8">Some</span><span style="color:#383A42;--shiki-dark:#908CAA">(</span><span style="color:#50A14F;--shiki-dark:#F6C177">"2022-02-01T00:00:00Z"</span><span style="color:#383A42;--shiki-dark:#3E8FB0">.</span><span style="color:#4078F2;--shiki-dark:#EA9A97">to_string</span><span style="color:#383A42;--shiki-dark:#908CAA">())),</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">      )</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">,</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#908CAA">  )</span></span>
+<span class="line"><span style="color:#383A42;--shiki-dark:#3E8FB0">  .</span><span style="color:#A626A4;--shiki-dark:#3E8FB0">await</span><span style="color:#383A42;--shiki-dark:#3E8FB0">?</span><span style="color:#383A42;--shiki-dark:#908CAA">;</span></span>
+<span class="line"></span></code></pre>
+<h3 id="preliminary-results">Preliminary Results</h3>
+<p>Similarly to the previous post, we compare the performance of the optimizer
+against regular DataFusion using the NYC Taxi dataset (Parquet) across
+the dates <code>2022-01-01</code> and <code>2022-02-01</code>. We use <code>tpep_dropoff_datetime</code> as
+our time column and for each query time ranges are generated
+at different granularities (e.g., seconds, minutes).</p>
+<h4 id="count-aggregation">COUNT(*) Aggregation</h4>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#0184BC;--shiki-dark:#EB6F92;font-style:inherit;--shiki-dark-font-style:italic"> COUNT</span><span style="color:#383A42;--shiki-dark:#E0DEF4">(</span><span style="color:#383A42;--shiki-dark:#3E8FB0">*</span><span style="color:#383A42;--shiki-dark:#E0DEF4">) </span><span style="color:#A626A4;--shiki-dark:#3E8FB0">FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> yellow_tripdata</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"></span></code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>System</th><th>p50</th><th>p99</th><th>p99.9</th></tr></thead><tbody><tr><td>datafusion (Second Ranges)</td><td>49529µs</td><td>53889µs</td><td>58729µs</td></tr><tr><td>datafusion (Minute Ranges)</td><td>49623µs</td><td>50751µs</td><td>51799µs</td></tr><tr><td>datafusion-uwheel (Second Ranges)</td><td><strong>59µs</strong></td><td><strong>99µs</strong></td><td><strong>263µs</strong></td></tr><tr><td>datafusion-uwheel (Minute Ranges)</td><td><strong>54µs</strong></td><td><strong>92µs</strong></td><td><strong>208µs</strong></td></tr></tbody></table>
+<p>Index size usage: 20.8 MiB</p>
+<h4 id="sum-aggregation-with-predicate">SUM Aggregation with Predicate</h4>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#0184BC;--shiki-dark:#EB6F92;font-style:inherit;--shiki-dark-font-style:italic"> SUM</span><span style="color:#383A42;--shiki-dark:#E0DEF4">(fare_amount) </span><span style="color:#A626A4;--shiki-dark:#3E8FB0">FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> yellow_tripdata</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> passenger_count </span><span style="color:#383A42;--shiki-dark:#3E8FB0">=</span><span style="color:#986801;--shiki-dark:#EA9A97"> 3</span></span>
+<span class="line"></span></code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>System</th><th>p50</th><th>p99</th><th>p99.9</th></tr></thead><tbody><tr><td>datafusion (Second Ranges)</td><td>72447µs</td><td>76971µs</td><td>80787µs</td></tr><tr><td>datafusion (Minute Ranges)</td><td>72355µs</td><td>73319µs</td><td>76159µs</td></tr><tr><td>datafusion-uwheel (Second Ranges)</td><td><strong>62µs</strong></td><td><strong>74µs</strong></td><td><strong>256µs</strong></td></tr><tr><td>datafusion-uwheel (Minute Ranges)</td><td><strong>65µs</strong></td><td><strong>84µs</strong></td><td><strong>165µs</strong></td></tr></tbody></table>
+<p><strong>Index size usage:</strong> 41.6 MiB</p>
+<h4 id="minmax-pruning">MinMax Pruning</h4>
+<pre class="astro-code astro-code-themes one-light rose-pine-moon" style="background-color:#FAFAFA;--shiki-dark-bg:#232136;color:#383A42;--shiki-dark:#e0def4; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">SELECT</span><span style="color:#383A42;--shiki-dark:#3E8FB0"> *</span><span style="color:#A626A4;--shiki-dark:#3E8FB0"> FROM</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> yellow_tripdata</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">WHERE</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">>=</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> tpep_dropoff_datetime </span><span style="color:#383A42;--shiki-dark:#3E8FB0">&#x3C;</span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span></span>
+<span class="line"><span style="color:#A626A4;--shiki-dark:#3E8FB0">AND</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> fare_amount </span><span style="color:#383A42;--shiki-dark:#3E8FB0">></span><span style="color:#50A14F;--shiki-dark:#F6C177"> '{}'</span><span style="color:#383A42;--shiki-dark:#E0DEF4"> # Random amount </span><span style="color:#A626A4;--shiki-dark:#3E8FB0">from</span><span style="color:#986801;--shiki-dark:#EA9A97"> 1</span><span style="color:#A626A4;--shiki-dark:#3E8FB0"> to</span><span style="color:#986801;--shiki-dark:#EA9A97"> 1000</span><span style="color:#383A42;--shiki-dark:#E0DEF4">.</span><span style="color:#986801;--shiki-dark:#EA9A97">0</span></span>
+<span class="line"></span></code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>System</th><th>p50</th><th>p99</th><th>p99.9</th></tr></thead><tbody><tr><td>datafusion (Second Ranges)</td><td>242103µs</td><td>246999µs</td><td>251527µs</td></tr><tr><td>datafusion (Minute Ranges)</td><td>242151µs</td><td>246935µs</td><td>255415µs</td></tr><tr><td>datafusion-uwheel (Second Ranges)</td><td><strong>1272µs</strong></td><td>247511µs</td><td>249471µs</td></tr><tr><td>datafusion-uwheel (Minute Ranges)</td><td><strong>1258µs</strong></td><td>248783µs</td><td>253695µs</td></tr></tbody></table>
+<p>As seen by the p50 latency, the optimizer is able to skip query processing
+on certain temporal ranges and fare amounts through the use of a MinMax wheel index.</p>
+<p><strong>Index size usage:</strong> 41.6 MiB</p>
+<h3 id="next-steps">Next steps</h3>
+<p><code>datafusion-uwheel</code> is still in early development stages and not yet production ready.</p>
+<p>Near-term plans include:</p>
+<ul>
+<li>Support more types of aggregations and expressions.</li>
+<li>Add more examples, tests, and documentation.</li>
+<li>Run more extensive benchmarks</li>
+</ul>
+<p>Long-term plans include:</p>
+<ul>
+<li>Support streaming incremental maintenance of wheel indices.</li>
+<li>Storage support for making wheel indices persistent.</li>
+<li>Build and maintain indices in a smart way based on query patterns.</li>
+</ul>
+<p>Join the discussion <a href="https://github.com/apache/datafusion/discussions/9963#discussioncomment-9446874">here</a>
+and development <a href="https://github.com/uwheel/datafusion-uwheel">here</a>.</p> </article>   <hr class="h-1 mb-2 border-gray-200 dark:border-gray-700"> <div class="flex flex-col gap-3"> <div class="dark:text-gray-300 italic">Tags</div> <ul class="text-sm text-sky-800 dark:text-sky-300 flex flex-wrap items-center gap-3"> <li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/datafusion" data-astro-transition-scope="astro-x7amp3kc-1">
+#datafusion </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/olap" data-astro-transition-scope="astro-x7amp3kc-2">
+#olap </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/indexing" data-astro-transition-scope="astro-x7amp3kc-3">
+#indexing </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/rust" data-astro-transition-scope="astro-x7amp3kc-4">
+#rust </a> </li><li class="mb-2 transition-all hover:translate-y-[-1px] hover:brightness-90">  <a class="transition-all bg-sky-400/10 dark:bg-sky-800/10 hover:dark:bg-sky-800/30 rounded p-2" href="/tag/uwheel" data-astro-transition-scope="astro-x7amp3kc-5">
+#uwheel </a> </li> </ul> </div>  </main> <footer class="flex flex-col gap-5 py-10 mx-auto max-w-3xl w-full"> <!-- TODO: move into a fixed FAB button, outside of footer --> <div class="text-right"> <button onclick="scrollToTop()">Back to top</button> </div> <div class="text-center">
+&copy; 2024 µWheel 
+- powered by <a class="text-sky-700 dark:text-sky-300 italic transition-all hover:brightness-80" href="https://github.com/marvin-j97/nanoblog" target="_blank">
+nanoblog
+</a>  </div> </footer> <script>
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth",
+    });
+  }
+</script>  </body> </html> 
